@@ -1,51 +1,41 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema, type Login } from "@shared/schema";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
-  const { login } = useAuth();
-  const { toast } = useToast();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [loginAs, setLoginAs] = useState<"staff" | "admin">("staff");
   const [, navigate] = useLocation();
-  
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    setValue,
-  } = useForm<Login>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
+  const { toast } = useToast();
 
-  const onSubmit = async (data: Login) => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
+
     try {
-      if (loginAs === "admin") {
-        setValue("username", "admin");
-      } else if (loginAs === "staff") {
-        setValue("username", "staff");
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Login failed");
       }
+
+      const userData = await response.json();
+      console.log("Login successful:", userData);
       
-      await login(data.username || loginAs, data.password);
-      reset();
-      
-      // Navigate to appropriate dashboard
-      if (loginAs === "admin") {
+      // Redirect based on role
+      if (userData.role === "admin") {
         navigate("/admin");
       } else {
         navigate("/staff");
@@ -54,7 +44,7 @@ export default function Login() {
       console.error("Login error:", error);
       toast({
         title: "Login Failed",
-        description: "Invalid username or password. Please try again.",
+        description: error instanceof Error ? error.message : "Invalid credentials",
         variant: "destructive",
       });
     } finally {
@@ -63,86 +53,106 @@ export default function Login() {
   };
 
   return (
-    <div className="login-container min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardContent className="pt-6">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-medium text-gray-800">Meal Planning System</h1>
-            <p className="text-gray-600 mt-2">Log in to manage meal counts</p>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="w-full max-w-4xl grid md:grid-cols-2 shadow-xl rounded-lg overflow-hidden">
+        <Card className="p-8 bg-white">
+          <CardHeader className="text-center p-0 mb-6">
+            <CardTitle className="text-2xl font-bold text-gray-900">Meal Planning System</CardTitle>
+            <CardDescription className="text-gray-600">Log in to manage meal submissions</CardDescription>
+          </CardHeader>
           
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                placeholder="Enter your username"
-                {...register("username")}
-              />
-              {errors.username && (
-                <p className="text-sm text-destructive mt-1">{errors.username.message}</p>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                {...register("password")}
-              />
-              {errors.password && (
-                <p className="text-sm text-destructive mt-1">{errors.password.message}</p>
-              )}
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="remember" />
-                <Label htmlFor="remember" className="text-sm">Remember me</Label>
+          <CardContent className="p-0">
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
+                  required
+                />
               </div>
-              
-              <Button variant="link" className="p-0 text-sm" type="button">
-                Forgot password?
-              </Button>
-            </div>
-            
-            <div className="flex flex-col gap-3 pt-2">
-              <div className="flex gap-3 mb-3">
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="staff-login" 
-                    checked={loginAs === "staff"}
-                    onCheckedChange={() => setLoginAs("staff")}
-                  />
-                  <Label htmlFor="staff-login">Staff Login</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="admin-login" 
-                    checked={loginAs === "admin"}
-                    onCheckedChange={() => setLoginAs("admin")}
-                  />
-                  <Label htmlFor="admin-login">Admin Login</Label>
-                </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                />
               </div>
-              
+
               <Button
                 type="submit"
-                disabled={isLoading}
                 className="w-full"
+                disabled={isLoading}
               >
                 {isLoading ? "Logging in..." : "Log In"}
               </Button>
-              
-              <div className="text-center text-xs text-gray-500 mt-2">
-                Default logins: staff/password or admin/password
+            </form>
+          </CardContent>
+          
+          <CardFooter className="flex-col space-y-4 px-0 pt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Demo Accounts</span>
               </div>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+            
+            <div className="grid grid-cols-2 gap-3 w-full">
+              <div className="border rounded p-2 text-center text-sm">
+                <div className="font-medium">Staff</div>
+                <div className="text-gray-500">username: staff</div>
+                <div className="text-gray-500">password: password</div>
+              </div>
+              <div className="border rounded p-2 text-center text-sm">
+                <div className="font-medium">Admin</div>
+                <div className="text-gray-500">username: admin</div>
+                <div className="text-gray-500">password: password</div>
+              </div>
+            </div>
+          </CardFooter>
+        </Card>
+
+        <div className="hidden md:block bg-blue-600 text-white p-8">
+          <div className="h-full flex flex-col justify-center">
+            <h2 className="text-3xl font-bold mb-6">Welcome to the Meal Planning System</h2>
+            <ul className="space-y-4">
+              <li className="flex items-start">
+                <svg className="h-6 w-6 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Submit meal counts for planning</span>
+              </li>
+              <li className="flex items-start">
+                <svg className="h-6 w-6 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Monitor submissions and reports</span>
+              </li>
+              <li className="flex items-start">
+                <svg className="h-6 w-6 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Streamline food planning process</span>
+              </li>
+              <li className="flex items-start">
+                <svg className="h-6 w-6 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>Reduce food waste and costs</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
