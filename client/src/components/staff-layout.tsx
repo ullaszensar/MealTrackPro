@@ -2,7 +2,6 @@ import { useAuth } from "@/components/auth-provider";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Utensils, History, User, Menu, LogOut } from "lucide-react";
 
 export function StaffLayout({ children }: { children: React.ReactNode }) {
@@ -65,58 +64,65 @@ export function StaffLayout({ children }: { children: React.ReactNode }) {
         </Button>
       </div>
 
-      {/* Mobile Menu Sheet */}
-      <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden absolute top-4 left-4 z-20"
-          onClick={() => setIsMenuOpen(true)}
-        >
-          <Menu className="h-6 w-6" />
-        </Button>
-        <SheetContent side="left">
-          <div className="py-6">
-            <h2 className="text-lg font-medium mb-6">Meal Planning</h2>
-            <nav className="space-y-2">
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Utensils className="mr-2 h-5 w-5" />
-                Meal Counts
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <History className="mr-2 h-5 w-5" />
-                History
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <User className="mr-2 h-5 w-5" />
-                Profile
-              </Button>
-            </nav>
-            <div className="absolute bottom-4 left-4 right-4">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={handleLogout}
-              >
-                <LogOut className="mr-2 h-5 w-5" />
-                Logout
-              </Button>
+      {/* Mobile Menu Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="md:hidden absolute top-4 left-4 z-20"
+        onClick={() => setIsMenuOpen(true)}
+      >
+        <Menu className="h-6 w-6" />
+      </Button>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setIsMenuOpen(false)}>
+          <div 
+            className="h-full w-64 bg-white shadow-lg p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="py-6">
+              <h2 className="text-lg font-medium mb-6">Meal Planning</h2>
+              <nav className="space-y-2">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Utensils className="mr-2 h-5 w-5" />
+                  Meal Counts
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <History className="mr-2 h-5 w-5" />
+                  History
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <User className="mr-2 h-5 w-5" />
+                  Profile
+                </Button>
+              </nav>
+              <div className="absolute bottom-4 left-4 right-4">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="mr-2 h-5 w-5" />
+                  Logout
+                </Button>
+              </div>
             </div>
           </div>
-        </SheetContent>
-      </Sheet>
+        </div>
+      )}
     </div>
   );
 }
