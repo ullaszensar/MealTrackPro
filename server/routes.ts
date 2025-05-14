@@ -31,6 +31,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup passport
   app.use(passport.initialize());
   app.use(passport.session());
+  
+  // Initialize database with demo users if they don't exist
+  const initDemoUsers = async () => {
+    // Check if admin user exists
+    let adminUser = await storage.getUserByUsername("admin");
+    if (!adminUser) {
+      console.log("Creating demo admin user");
+      await storage.createUser({
+        username: "admin",
+        password: "password",
+        displayName: "Admin User",
+        role: "admin"
+      });
+    }
+
+    // Check if staff user exists
+    let staffUser = await storage.getUserByUsername("staff");
+    if (!staffUser) {
+      console.log("Creating demo staff user");
+      await storage.createUser({
+        username: "staff",
+        password: "password",
+        displayName: "Staff User",
+        role: "staff"
+      });
+    }
+  };
+
+  await initDemoUsers();
 
   // Setup passport strategy
   passport.use(
