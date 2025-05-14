@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 96%;
+  --foreground: 20 14.3% 4.1%;
+  --muted: 60 4.8% 95.9%;
+  --muted-foreground: 25 5.3% 44.7%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 14.3% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 14.3% 4.1%;
+  --border: 20 5.9% 90%;
+  --input: 20 5.9% 90%;
+  --primary: 240 85% 55%;
+  --primary-foreground: 211 100% 99%;
+  --secondary: 36 100% 50%;
+  --secondary-foreground: 24 9.8% 10%;
+  --accent: 240 85% 95%;
+  --accent-foreground: 240 85% 40%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 60 9.1% 97.8%;
+  --success: 122 39% 49%;
+  --success-foreground: 60 9.1% 97.8%;
+  --info: 199 89% 48%;
+  --info-foreground: 60 9.1% 97.8%;
+  --warning: 45 93% 48%;
+  --warning-foreground: 24 9.8% 10%;
+  --ring: 240 85% 55%;
+  --radius: 0.5rem;
+  
+  /* Chart colors */
+  --chart-1: 240 85% 55%;
+  --chart-2: 36 100% 50%;
+  --chart-3: 199 89% 48%;
+  --chart-4: 122 39% 49%;
+  --chart-5: 45 93% 48%;
+
+  /* Sidebar colors */
+  --sidebar-background: 240 85% 55%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-primary: 0 0% 100%;
+  --sidebar-primary-foreground: 240 85% 55%;
+  --sidebar-accent: 0 0% 100% / 0.1;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 0 0% 100% / 0.1;
+  --sidebar-ring: 0 0% 100% / 0.3;
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --primary: 240 85% 55%;
+  --primary-foreground: 211 100% 99%;
+  --secondary: 36 100% 50%;
+  --secondary-foreground: 24 9.8% 10%;
+  --accent: 240 3.7% 15.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --success: 122 39% 39%;
+  --success-foreground: 0 0% 98%;
+  --info: 199 89% 38%;
+  --info-foreground: 0 0% 98%;
+  --warning: 45 93% 38%;
+  --warning-foreground: 0 0% 98%;
+  --ring: 240 4.9% 83.9%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* Login page background */
+.login-container {
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+              url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080') 
+              no-repeat center center;
+  background-size: cover;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    display: none;
+  }
+}
