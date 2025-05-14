@@ -15,8 +15,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(
     session({
       secret: process.env.SESSION_SECRET || "meal-planning-secret",
-      resave: false,
-      saveUninitialized: false,
+      resave: true,
+      saveUninitialized: true,
+      cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        httpOnly: true
+      },
       store: new SessionStore({
         checkPeriod: 86400000, // prune expired entries every 24h
       }),
@@ -78,19 +83,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth Routes
   app.post("/api/login", (req, res, next) => {
     try {
-      const { username, password } = loginSchema.parse(req.body);
+      console.log("Login attempt:", req.body);
+      
+      const result = loginSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ message: "Invalid request format" });
+      }
+      
+      const { username, password } = result.data;
       
       passport.authenticate("local", (err: any, user: any, info: any) => {
         if (err) {
+          console.error("Authentication error:", err);
           return next(err);
         }
+        
         if (!user) {
-          return res.status(401).json({ message: info.message });
+          console.log("Authentication failed:", info?.message);
+          return res.status(401).json({ message: info?.message || "Invalid credentials" });
         }
-        req.logIn(user, (err) => {
+        
+        req.login(user, (err) => {
           if (err) {
+            console.error("Login error:", err);
             return next(err);
           }
+          
+          console.log("Login successful for user:", user.username);
           return res.json({
             id: user.id,
             username: user.username,
@@ -100,17 +119,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       })(req, res, next);
     } catch (error) {
-      res.status(400).json({ message: "Invalid request" });
+      console.error("Login route error:", error);
+      res.status(500).json({ message: "Server error during login" });
     }
   });
 
   app.post("/api/logout", (req, res) => {
-    req.logout(() => {
+    console.log("Logout attempt for user:", req.user);
+    req.logout((err) => {
+      if (err) {
+        console.error("Logout error:", err);
+        return res.status(500).json({ message: "Logout failed" });
+      }
+      console.log("Logout successful");
       res.json({ message: "Logged out successfully" });
     });
   });
 
-  app.get("/api/me", isAuthenticated, (req, res) => {
+  app.get("/api/me", (req, res) => {
+    console.log("User session check:", req.isAuthenticated(), req.user);
+    
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
     const user = req.user as any;
     res.json({
       id: user.id,

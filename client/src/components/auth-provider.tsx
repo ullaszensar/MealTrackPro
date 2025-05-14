@@ -49,11 +49,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (username: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await apiRequest("POST", "/api/login", { username, password });
+      // Direct fetch for login to avoid issues with credentials
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Login failed");
+      }
+      
       const userData = await response.json();
       setUser(userData);
+      
+      toast({
+        title: "Logged in successfully",
+        description: `Welcome ${userData.displayName}!`,
+      });
+      
+      return userData;
     } catch (error) {
       console.error("Login error:", error);
+      toast({
+        title: "Login Failed",
+        description: error instanceof Error ? error.message : "Invalid username or password",
+        variant: "destructive",
+      });
       throw error;
     } finally {
       setIsLoading(false);
@@ -62,8 +88,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await apiRequest("POST", "/api/logout", {});
+      // Direct fetch for logout to avoid issues with credentials
+      await fetch("/api/logout", {
+        method: "POST",
+        credentials: "include"
+      });
+      
       setUser(null);
+      
       toast({
         title: "Logged out",
         description: "You have been successfully logged out.",
