@@ -13,6 +13,25 @@ import AdminUserManagement from "@/pages/admin-user-management";
 import NotFound from "@/pages/not-found";
 import { useEffect } from "react";
 
+function HomeRedirect() {
+  const { isAuthenticated, user } = useAuth();
+  const [, navigate] = useLocation();
+  
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (user?.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/staff');
+      }
+    } else {
+      navigate('/login');
+    }
+  }, [isAuthenticated, user, navigate]);
+  
+  return null;
+}
+
 function PrivateRoute({ component: Component, adminRequired = false, ...rest }: any) {
   const { isAuthenticated, user } = useAuth();
   const [, navigate] = useLocation();
@@ -75,11 +94,7 @@ function Router() {
       
       {/* Default redirect for authenticated users */}
       <Route path="/">
-        {isAuthenticated ? (
-          <>{user?.role === 'admin' ? navigate('/admin') : navigate('/staff')}</>
-        ) : (
-          <>{navigate('/login')}</>
-        )}
+        <HomeRedirect />
       </Route>
       
       {/* Fallback to 404 */}

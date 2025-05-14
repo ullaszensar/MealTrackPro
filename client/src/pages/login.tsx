@@ -9,18 +9,21 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 export default function Login() {
   const { login } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [loginAs, setLoginAs] = useState<"staff" | "admin">("staff");
+  const [, navigate] = useLocation();
   
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<Login>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -32,8 +35,21 @@ export default function Login() {
   const onSubmit = async (data: Login) => {
     setIsLoading(true);
     try {
-      await login(data.username, data.password);
+      if (loginAs === "admin") {
+        setValue("username", "admin");
+      } else if (loginAs === "staff") {
+        setValue("username", "staff");
+      }
+      
+      await login(data.username || loginAs, data.password);
       reset();
+      
+      // Navigate to appropriate dashboard
+      if (loginAs === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/staff");
+      }
     } catch (error) {
       console.error("Login error:", error);
       toast({
@@ -93,24 +109,36 @@ export default function Login() {
             </div>
             
             <div className="flex flex-col gap-3 pt-2">
-              <Button
-                type="submit"
-                disabled={isLoading}
-                onClick={() => setLoginAs("staff")}
-                className={loginAs === "staff" ? "" : "bg-white text-primary border border-gray-300 hover:bg-gray-50"}
-              >
-                {isLoading && loginAs === "staff" ? "Logging in..." : "Staff Login"}
-              </Button>
+              <div className="flex gap-3 mb-3">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="staff-login" 
+                    checked={loginAs === "staff"}
+                    onCheckedChange={() => setLoginAs("staff")}
+                  />
+                  <Label htmlFor="staff-login">Staff Login</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="admin-login" 
+                    checked={loginAs === "admin"}
+                    onCheckedChange={() => setLoginAs("admin")}
+                  />
+                  <Label htmlFor="admin-login">Admin Login</Label>
+                </div>
+              </div>
               
               <Button
                 type="submit"
                 disabled={isLoading}
-                onClick={() => setLoginAs("admin")}
-                variant={loginAs === "admin" ? "default" : "outline"}
-                className={loginAs === "admin" ? "" : "text-primary"}
+                className="w-full"
               >
-                {isLoading && loginAs === "admin" ? "Logging in..." : "Admin Login"}
+                {isLoading ? "Logging in..." : "Log In"}
               </Button>
+              
+              <div className="text-center text-xs text-gray-500 mt-2">
+                Default logins: staff/password or admin/password
+              </div>
             </div>
           </form>
         </CardContent>
