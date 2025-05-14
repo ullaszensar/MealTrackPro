@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/components/auth-provider";
 import { cn } from "@/lib/utils";
 import { 
   LayoutDashboard, 
@@ -50,17 +50,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           {links.map((link) => {
             const Icon = link.icon;
             return (
-              <Link key={link.href} href={link.href}>
-                <a
-                  className={cn(
-                    "flex items-center px-4 py-3 hover:bg-sidebar-accent text-sidebar-foreground/80 hover:text-sidebar-foreground",
-                    isActive(link.href) && "bg-white/10 text-sidebar-foreground"
-                  )}
-                >
-                  <Icon className="mr-2 h-5 w-5" />
-                  {link.label}
-                </a>
-              </Link>
+              <Button
+                key={link.href}
+                variant="ghost"
+                className={cn(
+                  "w-full justify-start px-4 py-3 h-auto hover:bg-sidebar-accent text-sidebar-foreground/80 hover:text-sidebar-foreground",
+                  isActive(link.href) && "bg-white/10 text-sidebar-foreground"
+                )}
+                onClick={() => navigate(link.href)}
+              >
+                <Icon className="mr-2 h-5 w-5" />
+                {link.label}
+              </Button>
             );
           })}
         </nav>
@@ -83,11 +84,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       {/* Admin Top App Bar - Mobile */}
       <div className="md:hidden bg-primary text-white shadow-md sticky top-0 z-10">
         <div className="px-4 py-3 flex justify-between items-center">
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-white">
-              <Menu className="h-6 w-6" />
-            </Button>
-          </SheetTrigger>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-white"
+            onClick={() => setIsMenuOpen(true)}
+          >
+            <Menu className="h-6 w-6" />
+          </Button>
           <h1 className="text-lg font-medium">Meal Admin</h1>
           <div></div>
         </div>

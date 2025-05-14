@@ -1,4 +1,4 @@
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/components/auth-provider";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -67,15 +67,14 @@ export function StaffLayout({ children }: { children: React.ReactNode }) {
 
       {/* Mobile Menu Sheet */}
       <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-        <SheetTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden absolute top-4 left-4 z-20"
-          >
-            <Menu className="h-6 w-6" />
-          </Button>
-        </SheetTrigger>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden absolute top-4 left-4 z-20"
+          onClick={() => setIsMenuOpen(true)}
+        >
+          <Menu className="h-6 w-6" />
+        </Button>
         <SheetContent side="left">
           <div className="py-6">
             <h2 className="text-lg font-medium mb-6">Meal Planning</h2>
