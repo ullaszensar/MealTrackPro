@@ -11,6 +11,7 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import AdminUserManagement from "@/pages/admin-user-management";
 import AdminMealPlanning from "@/pages/admin-meal-planning";
 import AdminReports from "@/pages/admin-reports";
+import AdminSettings from "@/pages/admin-settings";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/admin/users" component={AdminUserManagement} />
             <Route path="/admin/meal-planning" component={AdminMealPlanning} />
             <Route path="/admin/reports" component={AdminReports} />
+            <Route path="/admin/settings" component={AdminSettings} />
             <Route component={NotFound} />
           </Switch>
         </AuthProvider>
