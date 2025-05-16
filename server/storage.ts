@@ -91,6 +91,16 @@ export class MemStorage implements IStorage {
 
     const mealDate = new Date(submission.mealDate);
     
+    // Check if user already has a submission for this date
+    const existingSubmissions = Array.from(this.mealSubmissions.values()).filter(s => 
+      s.userId === userId && 
+      s.mealDate.toISOString().split('T')[0] === mealDate.toISOString().split('T')[0]
+    );
+    
+    if (existingSubmissions.length > 0) {
+      throw new Error("You have already submitted a meal count for this date. Please edit your existing submission instead.");
+    }
+    
     // Create meal submission
     const id = this.submissionIdCounter++;
     const mealSubmission: MealSubmission = {
@@ -128,6 +138,17 @@ export class MemStorage implements IStorage {
     };
     counts.push(lunchCount);
     
+    // Tea
+    const teaCount: MealCount = {
+      id: this.mealCountIdCounter++,
+      submissionId: id,
+      mealType: "tea",
+      adultCount: submission.tea.adultCount,
+      childCount: submission.tea.childCount,
+      specialRequirements: submission.tea.specialRequirements || null,
+    };
+    counts.push(teaCount);
+    
     // Dinner
     const dinnerCount: MealCount = {
       id: this.mealCountIdCounter++,
@@ -138,6 +159,17 @@ export class MemStorage implements IStorage {
       specialRequirements: submission.dinner.specialRequirements || null,
     };
     counts.push(dinnerCount);
+    
+    // Supper
+    const supperCount: MealCount = {
+      id: this.mealCountIdCounter++,
+      submissionId: id,
+      mealType: "supper",
+      adultCount: submission.supper.adultCount,
+      childCount: submission.supper.childCount,
+      specialRequirements: submission.supper.specialRequirements || null,
+    };
+    counts.push(supperCount);
     
     this.mealCounts.set(id, counts);
     

@@ -44,7 +44,7 @@ export type MealSubmission = typeof mealSubmissions.$inferSelect;
 export const mealCounts = pgTable("meal_counts", {
   id: serial("id").primaryKey(),
   submissionId: integer("submission_id").notNull(),
-  mealType: text("meal_type").notNull(), // breakfast, lunch, dinner
+  mealType: text("meal_type").notNull(), // breakfast, lunch, tea, dinner, supper
   adultCount: integer("adult_count").notNull().default(0),
   childCount: integer("child_count").notNull().default(0),
   specialRequirements: text("special_requirements"),
@@ -71,9 +71,38 @@ export type MealSubmissionWithCounts = MealSubmission & {
 export const createMealSubmissionSchema = z.object({
   mealDate: z.string().refine((date) => {
     const parsedDate = new Date(date);
-    return !isNaN(parsedDate.getTime());
+    
+    // Check if date is valid
+    if (isNaN(parsedDate.getTime())) {
+      return false;
+    }
+    
+    // Current date/time for time-based restrictions
+    const now = new Date();
+    const isPastTenPM = now.getHours() >= 22;
+    
+    // Get tomorrow and day after tomorrow dates (just the date portion)
+    const tomorrow = new Date();
+    tomorrow.setDate(now.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    
+    const dayAfterTomorrow = new Date();
+    dayAfterTomorrow.setDate(now.getDate() + 2);
+    dayAfterTomorrow.setHours(0, 0, 0, 0);
+    
+    // If it's after 10 PM, only allow day after tomorrow
+    if (isPastTenPM) {
+      const submissionDate = new Date(date);
+      submissionDate.setHours(0, 0, 0, 0);
+      return submissionDate.getTime() >= dayAfterTomorrow.getTime();
+    }
+    
+    // Otherwise, allow submission for tomorrow or later
+    const submissionDate = new Date(date);
+    submissionDate.setHours(0, 0, 0, 0);
+    return submissionDate.getTime() >= tomorrow.getTime();
   }, {
-    message: "Invalid date format",
+    message: "Invalid date. If it's after 10 PM, you can only submit for the day after tomorrow or later.",
   }),
   notes: z.string().optional(),
   breakfast: z.object({
@@ -86,7 +115,17 @@ export const createMealSubmissionSchema = z.object({
     childCount: z.number().int().min(0),
     specialRequirements: z.string().optional(),
   }),
+  tea: z.object({
+    adultCount: z.number().int().min(0),
+    childCount: z.number().int().min(0),
+    specialRequirements: z.string().optional(),
+  }),
   dinner: z.object({
+    adultCount: z.number().int().min(0),
+    childCount: z.number().int().min(0),
+    specialRequirements: z.string().optional(),
+  }),
+  supper: z.object({
     adultCount: z.number().int().min(0),
     childCount: z.number().int().min(0),
     specialRequirements: z.string().optional(),

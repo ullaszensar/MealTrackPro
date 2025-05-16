@@ -36,7 +36,17 @@ export function MealForm({ onSubmit, isSubmitting, defaultDate }: MealFormProps)
         childCount: 0,
         specialRequirements: "",
       },
+      tea: {
+        adultCount: 0,
+        childCount: 0,
+        specialRequirements: "",
+      },
       dinner: {
+        adultCount: 0,
+        childCount: 0,
+        specialRequirements: "",
+      },
+      supper: {
         adultCount: 0,
         childCount: 0,
         specialRequirements: "",
@@ -85,7 +95,10 @@ export function MealForm({ onSubmit, isSubmitting, defaultDate }: MealFormProps)
             {errors.mealDate && (
               <p className="text-sm text-destructive mt-1">{errors.mealDate.message}</p>
             )}
-            <p className="text-sm text-gray-600 mt-2">Please submit counts for the next day's meals.</p>
+            <p className="text-sm text-gray-600 mt-2">
+              Please submit counts for meals. After 10 PM, you can only submit for the day after tomorrow or later.
+              You can only make one submission per day.
+            </p>
           </div>
           
           {/* Breakfast Section */}
@@ -186,8 +199,57 @@ export function MealForm({ onSubmit, isSubmitting, defaultDate }: MealFormProps)
             </div>
           </div>
           
+          {/* Tea Section */}
+          <div className="mb-6 pb-6 border-b border-gray-200">
+            <h4 className="text-md font-medium text-gray-800 mb-4">Tea</h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <Label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="tea.adultCount">
+                  Adult Count
+                </Label>
+                <Input
+                  type="number"
+                  id="tea.adultCount"
+                  min="0"
+                  {...register("tea.adultCount", { valueAsNumber: true })}
+                />
+                {errors.tea?.adultCount && (
+                  <p className="text-sm text-destructive mt-1">{errors.tea.adultCount.message}</p>
+                )}
+              </div>
+              
+              <div>
+                <Label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="tea.childCount">
+                  Child Count
+                </Label>
+                <Input
+                  type="number"
+                  id="tea.childCount"
+                  min="0"
+                  {...register("tea.childCount", { valueAsNumber: true })}
+                />
+                {errors.tea?.childCount && (
+                  <p className="text-sm text-destructive mt-1">{errors.tea.childCount.message}</p>
+                )}
+              </div>
+            </div>
+            
+            <div>
+              <Label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="tea.specialRequirements">
+                Special Dietary Requirements
+              </Label>
+              <Textarea
+                id="tea.specialRequirements"
+                rows={2}
+                placeholder="e.g., 2 vegetarian, 1 gluten-free"
+                {...register("tea.specialRequirements")}
+              />
+            </div>
+          </div>
+          
           {/* Dinner Section */}
-          <div className="mb-6">
+          <div className="mb-6 pb-6 border-b border-gray-200">
             <h4 className="text-md font-medium text-gray-800 mb-4">Dinner</h4>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -231,6 +293,55 @@ export function MealForm({ onSubmit, isSubmitting, defaultDate }: MealFormProps)
                 rows={2}
                 placeholder="e.g., 2 vegetarian, 1 gluten-free"
                 {...register("dinner.specialRequirements")}
+              />
+            </div>
+          </div>
+          
+          {/* Supper Section */}
+          <div className="mb-6 pb-6 border-b border-gray-200">
+            <h4 className="text-md font-medium text-gray-800 mb-4">Supper</h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <Label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="supper.adultCount">
+                  Adult Count
+                </Label>
+                <Input
+                  type="number"
+                  id="supper.adultCount"
+                  min="0"
+                  {...register("supper.adultCount", { valueAsNumber: true })}
+                />
+                {errors.supper?.adultCount && (
+                  <p className="text-sm text-destructive mt-1">{errors.supper.adultCount.message}</p>
+                )}
+              </div>
+              
+              <div>
+                <Label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="supper.childCount">
+                  Child Count
+                </Label>
+                <Input
+                  type="number"
+                  id="supper.childCount"
+                  min="0"
+                  {...register("supper.childCount", { valueAsNumber: true })}
+                />
+                {errors.supper?.childCount && (
+                  <p className="text-sm text-destructive mt-1">{errors.supper.childCount.message}</p>
+                )}
+              </div>
+            </div>
+            
+            <div>
+              <Label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="supper.specialRequirements">
+                Special Dietary Requirements
+              </Label>
+              <Textarea
+                id="supper.specialRequirements"
+                rows={2}
+                placeholder="e.g., 2 vegetarian, 1 gluten-free"
+                {...register("supper.specialRequirements")}
               />
             </div>
           </div>
